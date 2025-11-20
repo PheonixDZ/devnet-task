@@ -1,3 +1,4 @@
+---
 image:
   repository: eth-loadgen
   tag: local

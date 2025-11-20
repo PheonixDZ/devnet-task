@@ -1,3 +1,4 @@
+---
 image:
   repository: ethereum/client-go
   tag: stable
@@ -16,7 +17,6 @@ service:
   rpcPort: 8545
   wsPort: 8546
 
-
 resources:
   requests:
     cpu: 250m
@@ -25,5 +25,5 @@ resources:
     cpu: 1000m
     memory: 2Gi
 
-fullnameOverride: "geth-dev"       # Service + Deployment name
-nameOverride: "devnet-geth"        # app.kubernetes.io/name label
+fullnameOverride: "geth-dev" # Service + Deployment name
+nameOverride: "devnet-geth" # app.kubernetes.io/name label

@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,9 +10,9 @@ data:
     {
       "config": {
         "chainId": 1337,
-        "clique": { 
-          "period": 6, 
-          "epoch": 30000 
+        "clique": {
+          "period": 6,
+          "epoch": 30000
         },
         "homesteadBlock": 0,
         "eip150Block": 0,

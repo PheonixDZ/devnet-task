@@ -1,3 +1,4 @@
+---
 prometheus:
   image: prom/prometheus:v2.54.1
   retention: 2d

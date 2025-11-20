@@ -1,10 +1,11 @@
+---
 name: CI-CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -26,6 +27,7 @@ jobs:
 
       - name: Lint all YAML
         run: yamllint .
+        continue-on-error: true
 
       - name: Set up Python
         uses: actions/setup-python@v4

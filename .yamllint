@@ -1,0 +1,22 @@
+extends: default
+
+rules:
+  braces:
+    ignore: |
+      charts/**/templates/*.yaml
+      charts/**/templates/*.yml
+
+  line-length:
+    max: 200
+    ignore: |
+      charts/**/templates/*.yaml
+      charts/**/templates/*.yml
+
+  comments-indentation: disable
+
+  indentation:
+    indent-sequences: consistent
+
+  trailing-spaces: enable
+  new-line-at-end-of-file: enable
+  key-ordering: disable

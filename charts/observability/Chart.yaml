@@ -1,3 +1,4 @@
+---
 apiVersion: v2
 name: observability
 description: Prometheus, Pushgateway, and Grafana with pre-provisioned dashboard
