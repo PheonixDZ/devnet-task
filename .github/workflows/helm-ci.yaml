@@ -105,11 +105,12 @@ jobs:
       - name: Build & Push Multi-Arch
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: charts/loadgen
+          file: charts/loadgen/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.tag }}
-            ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ steps.fixowner.outputs.owner_lower }}/loadgen:${{ steps.tagger.outputs.tag }}
+            ghcr.io/${{ steps.fixowner.outputs.owner_lower }}/loadgen:latest
           platforms: linux/amd64,linux/arm64
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,new=true
