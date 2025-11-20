@@ -43,19 +43,36 @@ A complete Kubernetes-based Ethereum development environment featuring:
 
 ```text
 .
-├── charts/
-│   ├── geth-dev/              # Geth devnet chart (Clique, 6s, PVC)
-│   ├── loadgen/               # Python load generator chart
-│   └── monitoring/            # Prometheus + Grafana + Pushgateway
-├── loadgen/
-│   ├── main.py                # Async load generator
-│   ├── requirements.txt
-│   └── Dockerfile
-└── scripts/
-    ├── kind-up.sh             # Create Kind cluster
-    ├── kind-down.sh           # Destroy cluster
-    ├── deploy-all.sh          # Deploy monitoring + geth + loadgen
-    └── teardown.sh            # Uninstall everything
+├── charts
+│   ├── devnet-geth
+│   │   ├── Chart.yaml
+│   │   ├── templates
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── configmap-env.yaml
+│   │   │   ├── deployment.yaml
+│   │   │   ├── networkpolicy.yaml
+│   │   │   ├── pvc.yaml
+│   │   │   └── service.yaml
+│   │   └── values.yaml
+│   ├── loadgen
+│   │   ├── Chart.yaml
+│   │   ├── Dockerfile
+│   │   ├── main.py
+│   │   ├── requirements.txt
+│   │   ├── templates
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── deployment.yaml
+│   │   │   └── service.yaml
+│   │   └── values.yaml
+│   └── observability
+│       ├── Chart.yaml
+│       ├── templates
+│       │   ├── _helpers.tpl
+│       │   ├── grafana.yaml
+│       │   ├── prometheus.yaml
+│       │   └── pushgateway.yaml
+│       └── values.yaml
+└── README.md
 ```
 
 ---
