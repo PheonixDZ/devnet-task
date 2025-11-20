@@ -1,0 +1,23 @@
+image:
+  repository: eth-loadgen
+  tag: local
+  pullPolicy: IfNotPresent
+
+env:
+  RPC_URL: "http://geth-dev:8545"
+  TARGET_TPS: "50"
+  CONCURRENCY: "100"
+  VALUE_WEI: "100000000000000"
+  CHAIN_ID: "1337"
+  PUSHGATEWAY_URL: "http://pushgateway.observability.svc.cluster.local:9091"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 2000m
+    memory: 1Gi
+
+service:
+  metricsPort: 8000

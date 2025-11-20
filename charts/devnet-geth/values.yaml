@@ -1,0 +1,29 @@
+image:
+  repository: ethereum/client-go
+  tag: stable
+  pullPolicy: IfNotPresent
+
+blockTime: 6
+prefundedAccount: "0x62358b29b9e3e70ff51D88766e41a339D3e8FFff"
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: ""
+
+service:
+  type: ClusterIP
+  rpcPort: 8545
+  wsPort: 8546
+
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+fullnameOverride: "geth-dev"       # Service + Deployment name
+nameOverride: "devnet-geth"        # app.kubernetes.io/name label

@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "common.name" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+
+  template:
+    metadata:
+      labels:
+        {{- include "common.selectorLabels" . | nindent 8 }}
+
+    spec:
+      securityContext:
+        fsGroup: 1000
+
+      containers:
+        - name: geth
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --dev
+            - --dev.period={{ .Values.blockTime }}
+            - --http
+            - --http.addr=0.0.0.0
+            - --http.port={{ .Values.service.rpcPort }}
+            - --http.api=eth,net,web3,txpool,debug
+            - --http.corsdomain=*
+            - --http.vhosts=*
+            - --ws
+            - --ws.addr=0.0.0.0
+            - --ws.port={{ .Values.service.wsPort }}
+            - --ws.api=eth,net,web3,txpool,debug
+            - --datadir=/data
+            - --allow-insecure-unlock
+            - --verbosity=3
+          # envFrom:
+          #   - configMapRef:
+          #       name: {{ include "common.name" . }}-env
+          ports:
+            - name: rpc
+              containerPort: {{ .Values.service.rpcPort }}
+            - name: ws
+              containerPort: {{ .Values.service.wsPort }}
+            - name: metrics
+              containerPort: 6060
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.rpcPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+        - name: funder
+          image: curlimages/curl:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "[fund] Waiting for Geth RPC..."
+              until curl -s http://localhost:8545 >/dev/null 2>&1; do sleep 1; done
+
+              echo "[fund] RPC ready. Sending funding tx..."
+
+              curl -s -X POST http://localhost:8545 \
+                -H "Content-Type: application/json" \
+                -d '{
+                    "jsonrpc":"2.0",
+                    "method":"eth_sendTransaction",
+                    "params":[{
+                      "from":"0x71562b71999873DB5b286dF957af199Ec94617F7",
+                      "to":"0x62358b29b9e3e70ff51d88766e41a339d3e8ffff",
+                      "value":"0x56bc75e2d63100000"
+                    }],
+                    "id":1
+                  }'
+
+              echo "[fund] Funding complete. Keeping sidecar alive..."
+
+              tail -f /dev/null
+
+      volumes:
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "common.name" . }}-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

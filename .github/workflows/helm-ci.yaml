@@ -1,0 +1,71 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
+  security-events: write
+
+jobs:
+  lint:
+    name: Lint YAML & Python
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: sudo apt-get install -y yamllint
+
+      - name: Lint all YAML
+        run: yamllint .
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint Python code
+        run: flake8 .
+
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: lint
+
+    env:
+      IMAGE_NAME: loadgen
+      REGISTRY: ghcr.io
+      OWNER: ${{ github.repository_owner }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Output Image URL
+        run: |
+          echo "Image pushed:"
+          echo "ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest"

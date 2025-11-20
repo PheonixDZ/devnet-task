@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.name" . }}
+  labels:
+    app: loadgen
+    release: prometheus
+spec:
+  selector:
+    {{- include "common.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: metrics
+      port: {{ .Values.service.metricsPort }}
+      targetPort: metrics

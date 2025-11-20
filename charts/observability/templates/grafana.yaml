@@ -1,0 +1,280 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: observability
+  labels:
+    app: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus.observability.svc.cluster.local:9090
+        isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  labels:
+    app: grafana
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'eth-devnet'
+        orgId: 1
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-json
+  labels:
+    app: grafana
+data:
+  eth-devnet-load.json: |
+    {
+      "title": "Ethereum Devnet — Loadgen Observability",
+      "uid": "eth-loadgen-v4",
+      "timezone": "browser",
+      "editable": true,
+      "refresh": "5s",
+      "schemaVersion": 39,
+      "version": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "TPS (Success)",
+          "datasource": "Prometheus",
+          "id": 1,
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 3 },
+          "targets": [
+            {
+              "expr": "rate(loadgen_tx_total{status=\"success\"}[30s])",
+              "legendFormat": "TPS"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "RPS (RPC Calls/sec)",
+          "datasource": "Prometheus",
+          "id": 2,
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 3 },
+          "targets": [
+            {
+              "expr": "rate(loadgen_rpc_requests_total[30s])",
+              "legendFormat": "RPS"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "In-Flight RPC Requests",
+          "datasource": "Prometheus",
+          "id": 3,
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 3 },
+          "targets": [
+            {
+              "expr": "loadgen_in_flight",
+              "legendFormat": "in_flight"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "MGas / sec",
+          "datasource": "Prometheus",
+          "id": 4,
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 3 },
+          "targets": [
+            {
+              "expr": "rate(loadgen_mgas_total[1m])",
+              "legendFormat": "mgas/s"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Total Successful TX",
+          "datasource": "Prometheus",
+          "id": 5,
+          "gridPos": { "x": 0, "y": 3, "w": 12, "h": 3 },
+          "targets": [
+            {
+              "expr": "loadgen_tx_total{status=\"success\"}",
+              "legendFormat": "success"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Total Failed TX",
+          "datasource": "Prometheus",
+          "id": 6,
+          "gridPos": { "x": 12, "y": 3, "w": 12, "h": 3 },
+          "targets": [
+            {
+              "expr": "loadgen_tx_total{status=\"failed\"}",
+              "legendFormat": "fail"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "TPS Over Time",
+          "datasource": "Prometheus",
+          "id": 10,
+          "gridPos": { "x": 0, "y": 6, "w": 12, "h": 4 },
+          "targets": [
+            {
+              "expr": "rate(loadgen_tx_total{status=\"success\"}[1m])",
+              "legendFormat": "TPS"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "RPS Over Time",
+          "datasource": "Prometheus",
+          "id": 11,
+          "gridPos": { "x": 12, "y": 6, "w": 12, "h": 4 },
+          "targets": [
+            {
+              "expr": "rate(loadgen_rpc_requests_total[1m])",
+              "legendFormat": "RPS"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "RPC Latency (P50 / P95 / P99)",
+          "datasource": "Prometheus",
+          "id": 20,
+          "gridPos": { "x": 0, "y": 10, "w": 12, "h": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P99"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "TX Send Latency",
+          "datasource": "Prometheus",
+          "id": 21,
+          "gridPos": { "x": 12, "y": 10, "w": 12, "h": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(loadgen_tx_send_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(loadgen_tx_send_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(loadgen_tx_send_latency_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P99"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Receipt Wait Latency",
+          "datasource": "Prometheus",
+          "id": 22,
+          "gridPos": { "x": 0, "y": 14, "w": 12, "h": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(loadgen_receipt_wait_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(loadgen_receipt_wait_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(loadgen_receipt_wait_seconds_bucket[1m])) by (le))",
+              "legendFormat": "P99"
+            }
+          ]
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: {{ .Values.grafana.image }}
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: {{ .Values.grafana.adminUser }}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: {{ .Values.grafana.adminPassword }}
+          ports:
+            - name: http
+              containerPort: 3000
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: dashboards-json
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+        - name: dashboard-provider
+          configMap:
+            name: grafana-dashboard-provider
+        - name: dashboards-json
+          configMap:
+            name: grafana-dashboard-json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

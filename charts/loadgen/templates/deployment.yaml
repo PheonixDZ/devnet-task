@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.name" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+
+  template:
+    metadata:
+      labels:
+        {{- include "common.selectorLabels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.metricsPort }}"
+        prometheus.io/path: "/metrics"
+
+    spec:
+      containers:
+        - name: loadgen
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.service.metricsPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

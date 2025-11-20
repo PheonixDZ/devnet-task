@@ -1,0 +1,12 @@
+prometheus:
+  image: prom/prometheus:v2.54.1
+  retention: 2d
+
+pushgateway:
+  image: prom/pushgateway:v1.8.0
+
+grafana:
+  image: grafana/grafana:11.2.2
+  adminUser: admin
+  adminPassword: admin
+  datasourceUrl: http://prometheus:9090

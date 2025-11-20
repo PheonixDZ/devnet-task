@@ -1,0 +1,6 @@
+apiVersion: v2
+name: loadgen
+description: Python-based Ethereum JSON-RPC transaction load generator
+type: application
+version: 0.1.0
+appVersion: "latest"
