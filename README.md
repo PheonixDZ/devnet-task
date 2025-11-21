@@ -174,9 +174,24 @@ helm uninstall monitoring -n "${NAMESPACE}" || true
 
 Destroy cluster:
 
+`scripts/kind-down.sh`:
+
 ```bash
-chmod +x scripts/kind-down.sh
-scripts/kind-down.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Same default used in kind-up.sh
+CLUSTER_NAME="${CLUSTER_NAME:-eth-devnet}"
+
+echo "[kind-down] Deleting kind cluster: ${CLUSTER_NAME}"
+
+# Check if cluster exists
+if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
+    kind delete cluster --name "${CLUSTER_NAME}"
+    echo "[kind-down] Cluster '${CLUSTER_NAME}' deleted successfully."
+else
+    echo "[kind-down] Cluster '${CLUSTER_NAME}' does not exist. Nothing to delete."
+fi
 ```
 
 ---
