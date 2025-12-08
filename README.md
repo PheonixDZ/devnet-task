@@ -137,13 +137,13 @@ NAMESPACE="${NAMESPACE:-eth}"
 kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 
 # Geth Devnet
-helm upgrade --install geth-dev ./charts/geth-dev   --namespace "${NAMESPACE}" --set fullnameOverride="geth-dev"   --set nameOverride="geth-dev"
+helm upgrade --install geth-dev ./charts/devnet-geth   --namespace "${NAMESPACE}" --set fullnameOverride="geth-dev"   --set nameOverride="geth-dev"
 
 # Loadgen
 helm upgrade --install loadgen ./charts/loadgen   --namespace "${NAMESPACE}"   --set image.repository="eth-loadgen"   --set image.tag="local"   --set image.pullPolicy="IfNotPresent"   --set env.RPC_URL="http://geth-dev.${NAMESPACE}.svc.cluster.local:8545"
 
 # Monitoring Stack
-helm upgrade --install monitoring ./charts/monitoring -n observability --create-namespace
+helm upgrade --install observability ./charts/observability -n observability --create-namespace
 ```
 
 Run:
@@ -168,8 +168,8 @@ set -euo pipefail
 NAMESPACE="${NAMESPACE:-eth}"
 
 helm uninstall loadgen -n "${NAMESPACE}" || true
-helm uninstall geth-dev -n "${NAMESPACE}" || true
-helm uninstall monitoring -n "${NAMESPACE}" || true
+helm uninstall devnet-geth -n "${NAMESPACE}" || true
+helm uninstall observability -n observability || true
 ```
 
 Destroy cluster:
@@ -266,7 +266,7 @@ Expected metrics:
 Port-forward Grafana:
 
 ```bash
-kubectl port-forward svc/grafana -n eth 3000:3000
+kubectl port-forward svc/grafana -n observability 3000:3000
 ```
 
 Open:

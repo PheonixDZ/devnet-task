@@ -7,7 +7,8 @@ metadata:
     app: loadgen
     release: prometheus
 spec:
-  selector: {{ - include "common.selectorLabels" . | nindent 4 }}
+  selector:
+    {{- include "common.selectorLabels" . | nindent 4 }}
   ports:
     - name: metrics
       port: {{ .Values.service.metricsPort }}
